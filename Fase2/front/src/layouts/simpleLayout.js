@@ -8,7 +8,17 @@ import ReactWordcloud from 'react-wordcloud';
 import Alert from '../components/tools/alert'
 import { useRef } from 'react'
 import { PolarArea } from 'react-chartjs-2'
+import {
+  Chart as ChartJS,
+  RadialLinearScale,
+  ArcElement,
+  Tooltip,
+  Legend,
+} from 'chart.js';
 
+ChartJS.register(RadialLinearScale, ArcElement, Tooltip, Legend);
+
+ChartJS.overrides.polarArea.plugins.legend.display = false;
 
 const SimpleLayout = (props) => {
   
@@ -18,8 +28,14 @@ const SimpleLayout = (props) => {
   const [words, setWords] = useState([])
   const [error, setError] = useState(null)
   const [stars, setStars] = useState([])
-  const [chart, setChart] = useState(null)
-  const chartReference = useRef()
+  const [chartPrecision, setChartPrecision] = useState(null)
+  const chartPrecisionReference = useRef()
+
+  const [chartReCall, setChartReCall] = useState(null)
+  const chartReCallReference = useRef()
+
+  const [chartF1, setChartF1] = useState(null)
+  const chartF1Reference = useRef()
 
   const [result, setResult] = useState({})
   
@@ -87,10 +103,10 @@ const SimpleLayout = (props) => {
       },
     ])
 
+    const response = {"precision":{"0":0.6307692308,"1":0.2,"2":0.2105263158,"3":0.3626373626,"4":0.6806282723,"avg":0.5130036231},"recall":{"0":0.6833333333,"1":0.0909090909,"2":0.1860465116,"3":0.375,"4":0.7386363636,"avg":0.5375},"f1-score":{"0":0.656,"1":0.125,"2":0.1975308642,"3":0.3687150838,"4":0.7084468665,"avg":0.5227810076},"support":{"0":60.0,"1":33.0,"2":43.0,"3":88.0,"4":176.0,"avg":400.0}}
     
-    
-    await handleStars(3.5)
-
+    processStatistics(response)
+  
     setSubmitted(true)
     
     
@@ -99,26 +115,78 @@ const SimpleLayout = (props) => {
   }
 
   const processStatistics = (stats) =>{
-    const aux = {
+    const auxPrecision = {
       points : [],
-      labels: []
+      labels: [],
+      avg:0
+    }
+    const auxReCall= {
+      points : [],
+      labels: [],
+      avg:0
     }
 
-    let keys = Object.keys(stats); 
+    const auxF1= {
+      points : [],
+      labels: [],
+      avg:0
+    }
+
+    let keys = Object.keys(stats['precision']); 
     let max = 0
+    let stars = 0
     for(let i=0; i< keys.length; i++){
       let key = keys[i];
-      if(stats[key]){
-        if(Number.isFinite(key.match(/(\d+)/g))){
-          if(max < stats[key]['precision']) max = stats[key]['precision']
-          const num = Number.parseInt(key.match(/(\d+)/g)) 
-          aux.points.push(stats[key]['precision'])
-          aux.labels.push( num === 1 ? num + ' star': num + ' stars' )
+      if(stats['precision'][key]){
+        const digit = key.match(/(\d+)/g)
+        if(digit && digit[0]){
+
+          const num = Number.parseInt(digit[0]) 
+          if(max < stats['precision'][key]) {
+            max = stats['precision'][key]
+            stars = num
+          }
+          auxPrecision.points.push(stats['precision'][key])
+          auxPrecision.labels.push( num === 1 ? num + ' star': num + ' stars' )
+          
+        } else if(key === 'avg'){
+          auxPrecision.avg = stats['precision'][key]
         }
       }
     }
-    setStars(max)
-    setChart(aux)
+    keys = Object.keys(stats['recall']); 
+    for(let i=0; i< keys.length; i++){
+      let key = keys[i];
+      if(stats['recall'][key]){
+        const digit = key.match(/(\d+)/g)
+        if(digit && digit[0]){
+          const num = Number.parseInt(digit[0]) 
+          auxReCall.points.push(stats['recall'][key])
+          auxReCall.labels.push( num === 1 ? num + ' star': num + ' stars' )
+          
+        } else if(key === 'avg'){
+          auxReCall.avg = stats['recall'][key]
+        }
+      }
+    }
+    keys = Object.keys(stats['f1-score']); 
+    for(let i=0; i< keys.length; i++){
+      let key = keys[i];
+      if(stats['f1-score'][key]){
+        const digit = key.match(/(\d+)/g)
+        if(digit && digit[0]){
+          const num = Number.parseInt(digit[0]) 
+          auxF1.points.push(stats['f1-score'][key])
+          auxF1.labels.push( num === 1 ? num + ' star': num + ' stars' )
+        } else if(key === 'avg'){
+          auxF1.avg = stats['f1-score'][key]
+        }
+      }
+    }
+    handleStars(stars)
+    setChartPrecision(auxPrecision)
+    setChartReCall(auxReCall)
+    setChartF1(auxF1)
   }
 
   const handleStars =async(num) =>{
@@ -152,6 +220,8 @@ const SimpleLayout = (props) => {
       <Col>
         <Row className='justify-content-center'>
           <Col sm={ submitted? 4 : 6} >
+              
+            <br />
             { !submitted ? 
               <>
                 <br />
@@ -183,6 +253,8 @@ const SimpleLayout = (props) => {
           { submitted ? 
             <Col className='text-center'>
               <br />
+              {submitted ? <Button  onClick={()=> handleClean()} variant='warning'>Try another</Button> : null} 
+              <br /><br />
               {submitted && stars.length  ?  
                   stars.map(_s => {
                     if(_s === 1){
@@ -193,19 +265,20 @@ const SimpleLayout = (props) => {
                      return <i className="fa-regular fa-star  text-warning"></i>
                   })
               : null }
-
-              {submitted && chart?.points?.length ? 
+              <br /><br />
+              {submitted && chartPrecision?.points?.length ? 
               
               <Row className='justify-content-center'>
-                <Col sm={6}>
+                <Col style={{height: '250px', maxWidth: '250px'}}>
+                  <h5>Precision</h5>
                   <PolarArea
-                    ref={chartReference}
+                    ref={chartPrecisionReference}
                     data={{
-                      labels: chart.labels,
+                      labels: chartPrecision.labels,
                       datasets: [
                           {
                             label: 'Precision',
-                            data: chart.points,
+                            data: chartPrecision.points,
                             backgroundColor: [
                                 'rgba(255, 99, 132, 0.7)',
                                 'rgba(75, 192, 192, 0.7)',
@@ -227,10 +300,85 @@ const SimpleLayout = (props) => {
                     options={{
                       scale: {
                         min: 0,
-                        max: 100
+                        max: 1
                       }
                     }}
                   />
+                  <h6><span className='fw-bold'>AVG:</span> {Math.round(chartPrecision.avg *100)/100}</h6>
+                </Col>
+                <Col style={{height: '250px', maxWidth: '250px'}}>
+                  <h5>Recall</h5>
+                  <PolarArea
+                    ref={chartReCallReference}
+                    data={{
+                      labels: chartReCall.labels,
+                      datasets: [
+                          {
+                            label: 'Recall',
+                            data: chartReCall.points,
+                            backgroundColor: [
+                                'rgba(255, 99, 132, 0.7)',
+                                'rgba(75, 192, 192, 0.7)',
+                                'rgba(255, 205, 86, 0.7)',
+                                'rgba(201, 203, 207, 0.7)',
+                                'rgba(54, 162, 235, 0.7)'
+                            ],
+                            borderColor: [
+                                'rgba(255, 89, 122, 0.7)',
+                                'rgba(65, 182, 182, 0.7)',
+                                'rgba(245, 195, 76, 0.7)',
+                                'rgba(191, 193, 197, 0.7)',
+                                'rgba(44, 152, 225, 0.7)'
+                            ],
+                            borderWidth: 1,
+                            },
+                      ],
+                    }}
+                    options={{
+                      scale: {
+                        min: 0,
+                        max: 1
+                      }
+                    }}
+                  />
+                  <h6><span className='fw-bold'>AVG:</span>  {Math.round(chartReCall.avg *100)/100}</h6>
+                </Col>
+                <Col style={{height: '250px', maxWidth: '250px'}}>
+                  <h5>F1 Score</h5>
+                  <PolarArea
+                    ref={chartF1Reference}
+                    data={{
+                      labels: chartF1.labels,
+                      datasets: [
+                          {
+                            label: 'F1 Score',
+                            data: chartF1.points,
+                            backgroundColor: [
+                                'rgba(255, 99, 132, 0.7)',
+                                'rgba(75, 192, 192, 0.7)',
+                                'rgba(255, 205, 86, 0.7)',
+                                'rgba(201, 203, 207, 0.7)',
+                                'rgba(54, 162, 235, 0.7)'
+                            ],
+                            borderColor: [
+                                'rgba(255, 89, 122, 0.7)',
+                                'rgba(65, 182, 182, 0.7)',
+                                'rgba(245, 195, 76, 0.7)',
+                                'rgba(191, 193, 197, 0.7)',
+                                'rgba(44, 152, 225, 0.7)'
+                            ],
+                            borderWidth: 1,
+                            },
+                      ],
+                    }}
+                    options={{
+                      scale: {
+                        min: 0,
+                        max: 1
+                      }
+                    }}
+                  />
+                  <h6><span className='fw-bold'>AVG:</span>  {Math.round(chartF1.avg *100)/100}</h6>
                 </Col>
               </Row>
 
@@ -238,10 +386,13 @@ const SimpleLayout = (props) => {
               :null}
 
               {submitted && words.length  ? 
-                <ReactWordcloud options={options} size={size} callbacks={callbacks} words={words}/> 
+                <div style={{height: '300px'}}>
+
+                  <ReactWordcloud options={options} size={size} callbacks={callbacks} words={words}/> 
+                </div>
               : null }
 
-              {submitted ? <Button  onClick={()=> handleClean()} variant='warning'>Try another</Button> : null}            
+                       
             </Col>
           
           : null}
