@@ -31,3 +31,14 @@ export const getPrediction = async(params) =>{
   const { data } = await axios.post(URL + 'predict', params, config)
   return data
 }
+
+export const goTrain = async(params) =>{
+  const config = {
+    headers: {
+      'Content-Type': 'application/json',
+      'Accept': '*/*',
+    }
+  }
+  const { data } = await axios.post(URL + 'train', params, config)
+  return data
+}

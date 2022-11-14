@@ -1,6 +1,6 @@
 import React from 'react'
 import { useState } from 'react'
-import {  Button, Col, FloatingLabel, Form, Row } from 'react-bootstrap'
+import {  Button, Col, FloatingLabel, Form, Modal, Row } from 'react-bootstrap'
 import Banner from '../components/banner/banner'
 import Content from '../components/content/content'
 import Loading from '../components/tools/loading'
@@ -16,7 +16,7 @@ import {
   Tooltip,
   Legend,
 } from 'chart.js';
-import { getCoefficients, getPrediction, getReport } from '../services/apiService'
+import { getCoefficients, getPrediction, getReport, goTrain } from '../services/apiService'
 
 ChartJS.register(RadialLinearScale, ArcElement, Tooltip, Legend);
 
@@ -26,11 +26,14 @@ const SimpleLayout = (props) => {
   
   const [submitted, setSubmitted] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [show, setShow] = useState(false)
   const [comment, setComment] = useState('')
   const [wordsPositive, setWordsPositive] = useState([])
   const [wordsNegative, setWordsNegative] = useState([])
+  const [files, setFiles] = useState("")
 
   const [error, setError] = useState(null)
+  const [alert, setAlert] = useState(null)
   const [stars, setStars] = useState([])
   const [chartPrecision, setChartPrecision] = useState(null)
   const chartPrecisionReference = useRef()
@@ -71,10 +74,16 @@ const SimpleLayout = (props) => {
     setLoading(false)
   }
 
+  const handleClose = () =>{
+    setShow(false)
+  }
 
   const handleSummit = async() =>{
     setError(null)
     setLoading(true)
+    setSubmitted(true)
+    setLoading(false)
+    return
     if(!comment || comment === ''){
       setError('Not comment received')
       setLoading(false)
@@ -224,6 +233,31 @@ const SimpleLayout = (props) => {
     setChartF1(auxF1)
   }
 
+  const handleUpload = async(e) => {
+    try {
+      setShow(false)
+      setLoading(true)
+      let _params = {}
+      const fileReader = new FileReader()
+      fileReader.readAsText(e.target.files[0], "UTF-8")
+      fileReader.onload = e => {
+        _params = JSON.parse(e.target.result)
+      }
+
+      goTrain(_params)
+
+      await  new Promise(resolve => setTimeout(resolve, 10000)) 
+      setLoading(false)
+      setAlert('This process may take a while, go get yourself a coffee!')
+
+    } catch (error) {
+      console.log('error', error)
+      setLoading(false)
+      setError('Error while reading the file')
+    }
+    
+  }
+
   const handleStars =async(num) =>{
 
     let max = 0
@@ -250,9 +284,10 @@ const SimpleLayout = (props) => {
     <>
     <Banner/>
       { error ? <Alert variant='error'> {error} </Alert>: null}
+      { alert ? <Alert variant='success'> {alert} </Alert>: null}
     <Content>
       { loading ? <Loading /> : null}
-      <Col>
+      <Col className='p-relative'>
         <Row className='justify-content-center'>
           <Col sm={ submitted? 3 : 6} >
               
@@ -308,7 +343,8 @@ const SimpleLayout = (props) => {
             </Col>
 
             
-            
+              
+          
           </Col>
           { submitted ? 
             <Col className='text-center'>
@@ -453,7 +489,7 @@ const SimpleLayout = (props) => {
                 </Col>
               </Row>
               
-
+              <Button className='absolute' style={{bottom: '28px',right: '18px', position: 'absolute'}}  onClick={()=> setShow(true)} variant='warning'>Update Model</Button>
                        
             </Col>
           
@@ -462,6 +498,23 @@ const SimpleLayout = (props) => {
         </Row>
       </Col>
     </Content>
+    <Modal centered show={show} onHide={handleClose}>
+        <Modal.Header closeButton>
+            <Modal.Title>Subir JSON</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Row>
+              <Col>
+                  <Form.Control type="file" id="image-file" label='Elige el archvo' onChange={(e) => handleUpload(e)} />
+              </Col>
+          </Row>
+      </Modal.Body>
+      <Modal.Footer>
+          <Button variant="secondary" onClick={handleClose}>
+                Salir
+            </Button>
+      </Modal.Footer>
+    </Modal>
     </>
     
     
