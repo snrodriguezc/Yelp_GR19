@@ -10,15 +10,13 @@
 1. Ubicarse en la carpeta raiz del proyecto: ./API
 2. Abrir una nueva terminal
 3. Correr el servidor con el comando: 
-
-´´´
+```
 uvicorn main:app --reload
-´´´
+```
 
 ## Uso de la aplicación
 1. Modificar el archivo [urlConstants.js] (https://github.com/snrodriguezc/Yelp_GR19/blob/main/Fase2/front/src/constants/urlConstants.js) para que apunte al back ya ejecutado
 2. Ejecutar el front
-
-´´´
+```
 npm start
-´´´
+```
