@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useState } from 'react'
 import {  Button, Col, FloatingLabel, Form, Modal, Row } from 'react-bootstrap'
 import Banner from '../components/banner/banner'
@@ -30,7 +30,6 @@ const SimpleLayout = (props) => {
   const [comment, setComment] = useState('')
   const [wordsPositive, setWordsPositive] = useState([])
   const [wordsNegative, setWordsNegative] = useState([])
-  const [files, setFiles] = useState("")
 
   const [error, setError] = useState(null)
   const [alert, setAlert] = useState(null)
@@ -44,8 +43,9 @@ const SimpleLayout = (props) => {
   const [chartF1, setChartF1] = useState(null)
   const chartF1Reference = useRef()
 
-  const [result, setResult] = useState({})
-  
+  useEffect(()=>{
+    handleClean()
+  }, [alert, error])
 
   const callbacks = {
     getWordColor: word => word.value > 50 ? "green" : "red",
@@ -64,16 +64,12 @@ const SimpleLayout = (props) => {
   
 
   const handleClean = async() =>{
-    setLoading(true)
-    setSubmitted(false)
-    setWordsPositive([])
-    setWordsNegative([])
-    setComment('')
-    setError(null)
-    setAlert(null)
-    setResult({})
-    setStars([])
+    if(alert !== null )setAlert(null)
+    if(error !== null )setError(null)
     setLoading(false)
+    setSubmitted(false)
+    setComment('')
+    setStars([])
   }
 
   const handleClose = () =>{
@@ -105,18 +101,18 @@ const SimpleLayout = (props) => {
       handleStars(decode[0])
     }
 
-    const response_report = await getReport()
-    
-    processStatistics(response_report)
+    if(!chartPrecision?.points){
+      const response_report = await getReport()
+      
+      processStatistics(response_report)
+    }
 
-    const response_coeficients = await getCoefficients()
+    if(!wordsPositive?.length){
+      const response_coefficients = await getCoefficients()
 
-    processWords(response_coeficients)
+      processWords(response_coefficients)
+    }
 
-
-    const response = {"precision":{"0":0.6307692308,"1":0.2,"2":0.2105263158,"3":0.3626373626,"4":0.6806282723,"avg":0.5130036231},"recall":{"0":0.6833333333,"1":0.0909090909,"2":0.1860465116,"3":0.375,"4":0.7386363636,"avg":0.5375},"f1-score":{"0":0.656,"1":0.125,"2":0.1975308642,"3":0.3687150838,"4":0.7084468665,"avg":0.5227810076},"support":{"0":60.0,"1":33.0,"2":43.0,"3":88.0,"4":176.0,"avg":400.0}}
-    
-    
   
     setSubmitted(true)
     
@@ -190,7 +186,7 @@ const SimpleLayout = (props) => {
       if(stats['precision'][key]){
         const digit = key.match(/(\d+)/g)
         if(digit && digit[0]){
-          const num = Number.parseInt(digit[0]) 
+          const num = Number.parseInt(digit[0]) + 1
           auxPrecision.points.push(stats['precision'][key])
           auxPrecision.labels.push( num === 1 ? num + ' star': num + ' stars' )
           
@@ -205,7 +201,7 @@ const SimpleLayout = (props) => {
       if(stats['recall'][key]){
         const digit = key.match(/(\d+)/g)
         if(digit && digit[0]){
-          const num = Number.parseInt(digit[0]) 
+          const num = Number.parseInt(digit[0]) + 1
           auxReCall.points.push(stats['recall'][key])
           auxReCall.labels.push( num === 1 ? num + ' star': num + ' stars' )
           
@@ -220,7 +216,7 @@ const SimpleLayout = (props) => {
       if(stats['f1-score'][key]){
         const digit = key.match(/(\d+)/g)
         if(digit && digit[0]){
-          const num = Number.parseInt(digit[0]) 
+          const num = Number.parseInt(digit[0]) + 1
           auxF1.points.push(stats['f1-score'][key])
           auxF1.labels.push( num === 1 ? num + ' star': num + ' stars' )
         } else if(key === 'avg'){
@@ -242,14 +238,16 @@ const SimpleLayout = (props) => {
       fileReader.readAsText(e.target.files[0], "UTF-8")
       fileReader.onload = e => {
         _params = JSON.parse(e.target.result)
+        goTrain(_params)
       }
 
-      goTrain(_params)
 
       await  new Promise(resolve => setTimeout(resolve, 10000)) 
       setLoading(false)
-      setAlert('This process may take a while, go get yourself a coffee!')
-      await  new Promise(resolve => setTimeout(resolve, 3000)) 
+      setAlert('This process may take a while, go get yourself some coffee!')
+      setWordsNegative([])
+      setWordsNegative([])
+      setChartPrecision(null)
       handleClean()
 
     } catch (error) {
@@ -285,8 +283,8 @@ const SimpleLayout = (props) => {
     
     <>
     <Banner/>
-      { error ? <Alert variant='error'> {error} </Alert>: null}
-      { alert ? <Alert variant='success'> {alert} </Alert>: null}
+      { error ? <Alert variant='error'>{error}</Alert>: null}
+      { alert ? <Alert variant='success'>{alert}</Alert>: null}
     <Content>
       { loading ? <Loading /> : null}
       <Col className='p-relative'>
