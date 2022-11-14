@@ -52,10 +52,10 @@ def make_predictions(listModelPred: ListModelPred):
 
     df.columns = dfpred.columnsPred(dfpred)
     df = df['text']
-    df = pipeline.process(df)
+    df = pipeline.pipeline.process(df)
     # Predicciones a partir del modelo generado
 
-    result = model.make_predictions(df)
+    result = model.model.make_predictions(df)
     # Transformacion de datos a JSON
     resultList = result.tolist()
     resultJson = json.dumps(resultList)
@@ -78,7 +78,10 @@ def classification_report():
 def coefficients():
     f = open('assets/coefficients.json')
     return json.load(f)
-
+@app.post("/profile")
+def coefficients():
+    f = open('assets/profile.json')
+    return json.load(f)
 
 @app.post("/train")
 def train(listModelTrain: ListModelTrain):
