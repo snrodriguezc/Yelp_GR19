@@ -502,18 +502,18 @@ const SimpleLayout = (props) => {
     </Content>
     <Modal centered show={show} onHide={handleClose}>
         <Modal.Header closeButton>
-            <Modal.Title>Subir JSON</Modal.Title>
+            <Modal.Title>Upload JSON</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <Row>
               <Col>
-                  <Form.Control type="file" id="image-file" label='Elige el archvo' onChange={(e) => handleUpload(e)} />
+                  <Form.Control type="file" id="image-file" label='Select a JSON file' onChange={(e) => handleUpload(e)} />
               </Col>
           </Row>
       </Modal.Body>
       <Modal.Footer>
           <Button variant="secondary" onClick={handleClose}>
-                Salir
+                Close
             </Button>
       </Modal.Footer>
     </Modal>
