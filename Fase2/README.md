@@ -1,4 +1,4 @@
-# Lab4_GR19
+# Proyecto 1 Etapa 2: YELP
 
 ## Entregables
 * [Script](https://github.com/snrodriguezc/Yelp_GR19/blob/main/Fase2/API/Pipeline.ipynb) de Jupyter Lab con la construcción del pipeline y la explicación de cada uno de los pasos que lo componen.
