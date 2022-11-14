@@ -20,3 +20,6 @@ uvicorn main:app --reload
 ```
 npm start
 ```
+
+## Ejemplo de uso
+[Enlace](https://youtu.be/fjoWNtMqNPc) al video de demostración
