@@ -14,7 +14,7 @@ from sklearn.linear_model import LinearRegression
 from sklearn.compose import ColumnTransformer
 from sklearn.pipeline import Pipeline
 from sklearn.impute import SimpleImputer
-from sklearn.metrics import mean_squared_error as mse, precision_recall_fscore_support
+from sklearn.metrics import mean_squared_error as mse, precision_recall_fscore_support, confusion_matrix
 
 from Processor.TextProcessor import TextProcesser
 from DataModel import DataModelTrain, DataModelPred, ListModelPred, ListModelTrain
@@ -67,6 +67,12 @@ def classification_report():
     f = open('assets/report.json')
     return json.load(f)
 
+@app.post("/cmatrix")
+def classification_report():
+    f = open('assets/c_matrix.json')
+    return json.load(f)
+
+
 
 @app.post("/coefficients")
 def coefficients():
@@ -108,6 +114,12 @@ def train(listModelTrain: ListModelTrain):
     coef.columns = vocabulary
 
     coef.to_json("assets/coefficients.json")
+
+    cm_test = pd.DataFrame(confusion_matrix(y_test, preds_test, labels=model.model.classes_))
+    cm_test_norm = pd.DataFrame(confusion_matrix(y_test, preds_test, labels=model.model.classes_, normalize='all'))
+
+    cm_test.to_json("assets/c_matrix.json")
+    cm_test_norm.to_json("assets/c_matrix_norm.json")
 
     return df_class_report
 
