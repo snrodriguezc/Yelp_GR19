@@ -6,31 +6,46 @@ from joblib import dump, load
 from fastapi import FastAPI
 import json
 from pydantic import Json
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.model_selection import train_test_split
 
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.linear_model import LinearRegression
 from sklearn.compose import ColumnTransformer
 from sklearn.pipeline import Pipeline
 from sklearn.impute import SimpleImputer
-from sklearn.metrics import mean_squared_error as mse
+from sklearn.metrics import mean_squared_error as mse, precision_recall_fscore_support
 
+from Processor.TextProcessor import TextProcesser
 from DataModel import DataModelTrain, DataModelPred, ListModelPred, ListModelTrain
 from PredictionModel import PredictionModel
-from ProcessingPipeline import  ProcessingPipeline
+from ProcessingPipeline import ProcessingPipeline
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
+origins = ["*"]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 model = PredictionModel()
 pipeline = ProcessingPipeline()
 
 
 @app.get("/")
 def read_root():
-   return {"Hello": "World"}
+    return {"Hello": "World"}
 
-#Endpoint1. Recibe una lista de registros y hace predicciones sobre estos
+
+# Endpoint1. Recibe una lista de registros y hace predicciones sobre estos
 @app.post("/predict")
 def make_predictions(listModelPred: ListModelPred):
-    #Transformacion de datos de JSON a dataframe
+    # Transformacion de datos de JSON a dataframe
     dict = listModelPred.dict()
     df = json_normalize(dict['registros'])
     dfpred = DataModelPred
@@ -38,62 +53,84 @@ def make_predictions(listModelPred: ListModelPred):
     df.columns = dfpred.columnsPred(dfpred)
     df = df['text']
     df = pipeline.process(df)
-    #Predicciones a partir del modelo generado
-
+    # Predicciones a partir del modelo generado
 
     result = model.make_predictions(df)
-    #Transformacion de datos a JSON
+    # Transformacion de datos a JSON
     resultList = result.tolist()
     resultJson = json.dumps(resultList)
     return resultJson
 
+
 @app.post("/report")
 def classification_report():
     f = open('assets/report.json')
-    data = json.load(f)
-    return data
+    return json.load(f)
+
 
 @app.post("/coefficients")
 def coefficients():
     f = open('assets/coefficients.json')
-    data = json.load(f)
-    return data
+    return json.load(f)
+
 
 @app.post("/train")
 def train(listModelTrain: ListModelTrain):
-    #Transformacion de datos de JSON a dataframe
+    # Transformacion de datos de JSON a dataframe
     dict = listModelTrain.dict()
     df = json_normalize(dict['registros'])
     dftrain = DataModelTrain
     df.columns = dftrain.columnsTrain(dftrain)
     df_prep = df.copy()
-    var_obj = 'stars'
-    df_prep = df_prep.dropna(subset=[var_obj])
 
-    #Entrenamiento con datos de entrada
-    df_lineal = df_prep.copy()
-    X = df_lineal['text']
-    y = df_lineal[var_obj]
+    X_train, X_test, y_train, y_test = train_test_split(df_prep['text'], df_prep['stars'],
+                                                        test_size=0.2, stratify=df_prep['stars'],
+                                                        random_state=1)
 
-    X = pipeline.process(X)
+    X_train = pipeline.pipeline.fit_transform(X_train).toarray()
+    X_test = pipeline.pipeline.transform(X_test).toarray()
+
+    dump(pipeline, "assets/pipeline.joblib")
+
+    model.model.fit(X_train, y_train)
+    dump(model, "assets/model.joblib")
+
+    preds_test = model.model.predict(X_test)
+
+    df_class_report = pandas_classification_report(y_test, preds_test)
+
+    df_class_report.to_json("assets/report.json")
+
+    # %%
+    vocabulary = pipeline.pipeline.steps[1][1].vocabulary_
+
+    coef = pd.DataFrame(model.model.coef_)
+    coef.columns = vocabulary
+
+    coef.to_json("assets/coefficients.json")
+
+    return df_class_report
 
 
+def pandas_classification_report(y_true, y_pred):
+    metrics_summary = precision_recall_fscore_support(
+        y_true=y_true,
+        y_pred=y_pred)
 
-    model.model.fit(X,y)
+    avg = list(precision_recall_fscore_support(
+        y_true=y_true,
+        y_pred=y_pred,
+        average='weighted'))
 
-    #Generacion de metricas de calidad del modelo
-    r2 = model.model.score(X,y)
+    metrics_sum_index = ['precision', 'recall', 'f1-score', 'support']
+    class_report_df = pd.DataFrame(
+        list(metrics_summary),
+        index=metrics_sum_index)
 
-    y_true = y
-    y_predicted = model.model.predict(X)
-    
-    rmse = np.sqrt(mse(y_true, y_predicted))
+    support = class_report_df.loc['support']
+    total = support.sum()
+    avg[-1] = total
 
-    #Almacenamiento del modelo generado
-    filename = 'model2.joblib'
-    dump(model.model, "./assets/"+filename)
+    class_report_df['avg'] = avg
 
-    return {
-        "R2": r2,
-        "RMSE": rmse
-    }
+    return class_report_df.T
