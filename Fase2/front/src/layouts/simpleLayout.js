@@ -61,6 +61,7 @@ const SimpleLayout = (props) => {
   };
   const size = [400, 300];
 
+  
 
   const handleClean = async() =>{
     setLoading(true)
@@ -69,6 +70,7 @@ const SimpleLayout = (props) => {
     setWordsNegative([])
     setComment('')
     setError(null)
+    setAlert(null)
     setResult({})
     setStars([])
     setLoading(false)
@@ -247,6 +249,8 @@ const SimpleLayout = (props) => {
       await  new Promise(resolve => setTimeout(resolve, 10000)) 
       setLoading(false)
       setAlert('This process may take a while, go get yourself a coffee!')
+      await  new Promise(resolve => setTimeout(resolve, 3000)) 
+      handleClean()
 
     } catch (error) {
       console.log('error', error)
