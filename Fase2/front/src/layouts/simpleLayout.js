@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react'
 import { useState } from 'react'
-import {  Button, Col, FloatingLabel, Form, Modal, Row } from 'react-bootstrap'
+import {  Badge, Button, Col, FloatingLabel, Form, ListGroup, Modal, Row } from 'react-bootstrap'
 import Banner from '../components/banner/banner'
 import Content from '../components/content/content'
 import Loading from '../components/tools/loading'
@@ -16,7 +16,7 @@ import {
   Tooltip,
   Legend,
 } from 'chart.js';
-import { getCoefficients, getPrediction, getReport, goTrain } from '../services/apiService'
+import { getCoefficients, getPrediction, getProfile, getReport, goTrain } from '../services/apiService'
 
 ChartJS.register(RadialLinearScale, ArcElement, Tooltip, Legend);
 
@@ -34,6 +34,9 @@ const SimpleLayout = (props) => {
   const [error, setError] = useState(null)
   const [alert, setAlert] = useState(null)
   const [stars, setStars] = useState([])
+
+  const [profile, setProfile] = useState(null)
+
   const [chartPrecision, setChartPrecision] = useState(null)
   const chartPrecisionReference = useRef()
 
@@ -103,14 +106,17 @@ const SimpleLayout = (props) => {
 
     if(!chartPrecision?.points){
       const response_report = await getReport()
-      
       processStatistics(response_report)
     }
 
     if(!wordsPositive?.length){
       const response_coefficients = await getCoefficients()
-
       processWords(response_coefficients)
+    }
+
+    if(!profile){
+      const response_profile = await getProfile()
+      setProfile(response_profile)
     }
 
   
@@ -248,6 +254,7 @@ const SimpleLayout = (props) => {
       setWordsNegative([])
       setWordsNegative([])
       setChartPrecision(null)
+      setProfile(null)
       handleClean()
 
     } catch (error) {
@@ -289,66 +296,115 @@ const SimpleLayout = (props) => {
       { loading ? <Loading /> : null}
       <Col className='p-relative'>
         <Row className='justify-content-center'>
-          <Col sm={ submitted? 3 : 6} >
-              
-            <br />
-            { !submitted ? 
-              <>
-                <br />
-                <h2 className='text-center'>Enter a comment to be evaluated</h2>
-              </>
-            
-            : null}
-            <br />
-
-            { !submitted ? 
-              
-              <FloatingLabel
-              controlId="floatingTextarea"
-              label="Comment"
-              className="m-3"
-              >
-                <Form.Control disabled={submitted} value={comment} onChange={(e) => setComment(e.target.value)} as="textarea" placeholder="Enter a comment here" />
-              </FloatingLabel>
-            
-            : <q className='h4'>{comment}</q>}
-            {submitted ? 
-            
-            <Col className='text-center'>
-              <br /><br />
-              <span>Prediction:</span>
-              {submitted && stars.length  ?  
-                  stars.map(_s => {
-                    if(_s === 1){
-                      return <i className="fa-solid fa-star text-warning"></i>
-                    } else if(_s === 0.5){
-                      return <i className="fa-solid fa-star-half-stroke  text-warning"></i>
-                    } 
-                     return <i className="fa-regular fa-star  text-warning"></i>
-                  })
-              : null }
+          <Col sm={ submitted? 4 : 6} >
+            <div className='content-card text-center mb-3 shadow-light'>
               <br />
-            </Col>
+              { !submitted ? 
+                <>
+                  <br />
+                  <h2 className='text-center'>Enter a comment to be evaluated</h2>
+                </>
+              
+              : null}
+              <br />
+
+              { !submitted ? 
+                
+                <FloatingLabel
+                controlId="floatingTextarea"
+                label="Comment"
+                className="m-3"
+                >
+                  <Form.Control disabled={submitted} value={comment} onChange={(e) => setComment(e.target.value)} as="textarea" placeholder="Enter a comment here" />
+                </FloatingLabel>
+              
+              : <q className='h4'>{comment}</q>}
+              {submitted ? 
+              
+              <Col className='text-center'>
+                <br /><br />
+                <span>Prediction:</span>
+                {submitted && stars.length  ?  
+                    stars.map(_s => {
+                      if(_s === 1){
+                        return <i className="fa-solid fa-star text-warning"></i>
+                      } else if(_s === 0.5){
+                        return <i className="fa-solid fa-star-half-stroke  text-warning"></i>
+                      } 
+                      return <i className="fa-regular fa-star  text-warning"></i>
+                    })
+                : null }
+                <br />
+              </Col>
+              : null}
+
+                
+              
+              <Col className='text-center'  >
+              <br />
+              { !submitted ? 
+                
+                  <Button disabled={submitted} onClick={()=> handleSummit()} variant='warning'>Submit</Button>
+                
+              : <Button  onClick={()=> handleClean()} variant='warning'>Try another</Button>}
+              <br/><br/>
+              </Col>
+
+            
+            </div>
+            { submitted && profile ? 
+              <div className='content-card text-center mb-3 shadow-light'>
+                <h3>Profile of the Model</h3>
+                <ListGroup>
+                  { profile.n_cells_missing ? 
+                  <ListGroup.Item
+                    as="li"
+                    className="d-flex justify-content-between align-items-start"
+                  >
+                    <div className="ms-2 me-auto">
+                      Cells missing
+                    </div>
+                    <Badge bg="warning" pill>
+                      {profile.n_cells_missing}
+                    </Badge>
+                  </ListGroup.Item>
+                  :null}
+                  { profile.n_duplicates ? 
+                  <ListGroup.Item
+                    as="li"
+                    className="d-flex justify-content-between align-items-start"
+                  >
+                    <div className="ms-2 me-auto">
+                      Duplicates
+                    </div>
+                    <Badge bg="warning" pill>
+                      {profile.n_duplicates}
+                    </Badge>
+                  </ListGroup.Item>
+                  :null}
+                  { profile.count ? 
+                  <ListGroup.Item
+                    as="li"
+                    className="d-flex justify-content-between align-items-start"
+                  >
+                    <div className="ms-2 me-auto">
+                      Count
+                    </div>
+                    <Badge bg="warning" pill>
+                      {profile.count}
+                    </Badge>
+                  </ListGroup.Item>
+                  :null}
+                </ListGroup>
+              </div>
             : null}
-
-              
             
-            <Col className='text-center'  >
-            <br />
-            { !submitted ? 
-              
-                <Button disabled={submitted} onClick={()=> handleSummit()} variant='warning'>Submit</Button>
-              
-            : <Button  onClick={()=> handleClean()} variant='warning'>Try another</Button>}
-            </Col>
-
-            
-              
           
           </Col>
           { submitted ? 
             <Col className='text-center'>
-              <h2>About the model</h2>
+              <div className='content-card shadow-light'>
+              <h3>About the Model</h3>
               {submitted && chartPrecision?.points?.length ? 
               
               <Row className='justify-content-center'>
@@ -478,6 +534,7 @@ const SimpleLayout = (props) => {
                     </div>
                   : null }
                 </Col>
+                <Col sm={1}></Col>
                 <Col className='text-center' style={{height: '250px', maxWidth: '350px'}}>
                   <h4>Negative words</h4>
                   {submitted && wordsNegative.length  ? 
@@ -488,9 +545,10 @@ const SimpleLayout = (props) => {
                   : null }
                 </Col>
               </Row>
+              <br/><br/><br/><br/>
               
-              <Button className='absolute' style={{bottom: '28px',right: '18px', position: 'absolute'}}  onClick={()=> setShow(true)} variant='warning'>Update Model</Button>
-                       
+              </div>   
+              <Button className='absolute' style={{bottom: '28px',right: '18px', position: 'absolute'}}  onClick={()=> setShow(true)} variant='info'>Update Model</Button>
             </Col>
           
           : null}

@@ -21,6 +21,16 @@ export const getReport = async() =>{
   return data
 }
 
+export const getProfile = async() =>{
+  const config = {
+    headers: {
+      'Content-Type': 'application/json',
+    }
+  }
+  const { data } = await axios.post(URL + 'profile', {}, config)
+  return data
+}
+
 export const getPrediction = async(params) =>{
   const config = {
     headers: {

@@ -1,6 +1,11 @@
 .btn-lg,.form-control-lg,  .border-rounded{
   border-radius: 32px !important;
 }
+.content-card{
+  padding: 8px;
+  border-radius: 32px;
+  background-color: white;
+}
 #root{
   background-color: #efefef;
 }

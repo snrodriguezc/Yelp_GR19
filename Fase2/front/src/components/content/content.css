@@ -5,7 +5,6 @@
   padding: 8px;
   border-radius: 32px;
   min-height: 90vh;
-  background: #fff;
 }
 
 @media (max-width: 576px) {
