@@ -1,26 +1,17 @@
-from tokenize import String
-import pandas as pd
-from pandas import json_normalize
-import numpy as np
-from joblib import dump, load
-from fastapi import FastAPI
 import json
-from pydantic import Json
-from sklearn.feature_extraction.text import CountVectorizer
+
+import pandas as pd
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from joblib import dump
+from pandas import json_normalize
+from pandas_profiling import ProfileReport
+from sklearn.metrics import precision_recall_fscore_support, confusion_matrix
 from sklearn.model_selection import train_test_split
 
-from sklearn.preprocessing import MinMaxScaler
-from sklearn.linear_model import LinearRegression
-from sklearn.compose import ColumnTransformer
-from sklearn.pipeline import Pipeline
-from sklearn.impute import SimpleImputer
-from sklearn.metrics import mean_squared_error as mse, precision_recall_fscore_support, confusion_matrix
-
-from Processor.TextProcessor import TextProcesser
 from DataModel import DataModelTrain, DataModelPred, ListModelPred, ListModelTrain
 from PredictionModel import PredictionModel
 from ProcessingPipeline import ProcessingPipeline
-from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
 origins = ["*"]
@@ -52,10 +43,10 @@ def make_predictions(listModelPred: ListModelPred):
 
     df.columns = dfpred.columnsPred(dfpred)
     df = df['text']
-    df = pipeline.pipeline.process(df)
+    df = pipeline.process(df)
     # Predicciones a partir del modelo generado
 
-    result = model.model.make_predictions(df)
+    result = model.make_predictions(df)
     # Transformacion de datos a JSON
     resultList = result.tolist()
     resultJson = json.dumps(resultList)
@@ -91,18 +82,40 @@ def train(listModelTrain: ListModelTrain):
     dftrain = DataModelTrain
     df.columns = dftrain.columnsTrain(dftrain)
     df_prep = df.copy()
+    ProfileReport(df_prep,   title='Profiling Report', explorative=True)
+
+    profile = df_prep.profile_report()
+    p = profile.to_json()
+    y = json.loads(p)
+
+    stars = df_prep.describe()
+
+    my_profile = {"count": y['table']['n'], "n_var": y['table']["n_var"],
+                  "n_cells_missing": y['table']["n_cells_missing"],
+                  "n_vars_with_missing": y['table']["n_vars_with_missing"],
+                  "n_vars_all_missing": y['table']["n_vars_all_missing"],
+                  "p_cells_missing": y['table']["p_cells_missing"],
+                  "n_duplicates": y['table']["n_duplicates"],
+                  "p_duplicates": y['table']["p_duplicates"],
+
+                  "stars": json.loads(stars.to_json())["stars"]
+                  }
+
+    with open("assets/profile.json", "w") as write_file:
+        json.dump(my_profile, write_file)
 
     X_train, X_test, y_train, y_test = train_test_split(df_prep['text'], df_prep['stars'],
                                                         test_size=0.2, stratify=df_prep['stars'],
                                                         random_state=1)
 
+
     X_train = pipeline.pipeline.fit_transform(X_train).toarray()
     X_test = pipeline.pipeline.transform(X_test).toarray()
 
-    dump(pipeline, "assets/pipeline.joblib")
+    dump(pipeline, "assets/pipeline2.joblib")
 
     model.model.fit(X_train, y_train)
-    dump(model, "assets/model.joblib")
+    dump(model, "assets/model2.joblib")
 
     preds_test = model.model.predict(X_test)
 
@@ -116,7 +129,7 @@ def train(listModelTrain: ListModelTrain):
     coef = pd.DataFrame(model.model.coef_)
     coef.columns = vocabulary
 
-    coef.to_json("assets/coefficients.json")
+    coef.to_json("assets/coefficients2.json")
 
     cm_test = pd.DataFrame(confusion_matrix(y_test, preds_test, labels=model.model.classes_))
     cm_test_norm = pd.DataFrame(confusion_matrix(y_test, preds_test, labels=model.model.classes_, normalize='all'))
@@ -149,3 +162,4 @@ def pandas_classification_report(y_true, y_pred):
     class_report_df['avg'] = avg
 
     return class_report_df.T
+
