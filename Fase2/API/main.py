@@ -112,10 +112,10 @@ def train(listModelTrain: ListModelTrain):
     X_train = pipeline.pipeline.fit_transform(X_train).toarray()
     X_test = pipeline.pipeline.transform(X_test).toarray()
 
-    dump(pipeline, "assets/pipeline2.joblib")
+    dump(pipeline, "assets/pipeline.joblib")
 
     model.model.fit(X_train, y_train)
-    dump(model, "assets/model2.joblib")
+    dump(model, "assets/model.joblib")
 
     preds_test = model.model.predict(X_test)
 
@@ -129,7 +129,7 @@ def train(listModelTrain: ListModelTrain):
     coef = pd.DataFrame(model.model.coef_)
     coef.columns = vocabulary
 
-    coef.to_json("assets/coefficients2.json")
+    coef.to_json("assets/coefficients.json")
 
     cm_test = pd.DataFrame(confusion_matrix(y_test, preds_test, labels=model.model.classes_))
     cm_test_norm = pd.DataFrame(confusion_matrix(y_test, preds_test, labels=model.model.classes_, normalize='all'))
