@@ -81,9 +81,7 @@ const SimpleLayout = (props) => {
   const handleSummit = async() =>{
     setError(null)
     setLoading(true)
-    setSubmitted(true)
-    setLoading(false)
-    return
+
     if(!comment || comment === ''){
       setError('Not comment received')
       setLoading(false)
