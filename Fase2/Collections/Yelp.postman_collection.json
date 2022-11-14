@@ -1,0 +1,209 @@
+{
+	"info": {
+		"_postman_id": "90dc2ab5-a573-4ee1-88de-4eee519aa39e",
+		"name": "Yelp",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "HelloWorld",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{localhost}}/",
+					"host": [
+						"{{localhost}}"
+					],
+					"path": [
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "predict_esc1",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"registros\":\r\n        [\r\n            {\r\n                \"serial_no\": 479,\r\n                \"gre_score\": 327,\r\n                \"toefl_score\": 113,\r\n                \"university_rating\": 4,\r\n                \"sop\": 4.0,\r\n                \"lor\": 2.77,\r\n                \"cgpa\": 8.88,\r\n                \"research\": 1\r\n            }\r\n        ]\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{localhost}}/predict",
+					"host": [
+						"{{localhost}}"
+					],
+					"path": [
+						"predict"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "report",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"registros\":\r\n        [\r\n            {\r\n                \"serial_no\": 479,\r\n                \"gre_score\": 327,\r\n                \"toefl_score\": 113,\r\n                \"university_rating\": 4,\r\n                \"sop\": 4.0,\r\n                \"lor\": 2.77,\r\n                \"cgpa\": 8.88,\r\n                \"research\": 1\r\n            },\r\n            {\r\n                \"serial_no\": 446,\r\n                \"gre_score\": 301,\r\n                \"toefl_score\": 92,\r\n                \"university_rating\": 1,\r\n                \"sop\": 1.85,\r\n                \"lor\": 1.5,\r\n                \"cgpa\": 7.71,\r\n                \"research\": 0\r\n            },\r\n            {\r\n                \"serial_no\": 336,\r\n                \"gre_score\": 297,\r\n                \"toefl_score\": 100,\r\n                \"university_rating\": 1,\r\n                \"sop\": 2.41,\r\n                \"lor\": 1.59,\r\n                \"cgpa\": 7.89,\r\n                \"research\": 0\r\n            },\r\n            {\r\n                \"serial_no\": 20,\r\n                \"gre_score\": 303,\r\n                \"toefl_score\": 98,\r\n                \"university_rating\": 3,\r\n                \"sop\": 3.5,\r\n                \"lor\": 3,\r\n                \"cgpa\": 8.5,\r\n                \"research\": 0\r\n            },\r\n            {\r\n                \"serial_no\": 432,\r\n                \"gre_score\": 320,\r\n                \"toefl_score\": 94,\r\n                \"university_rating\": 2,\r\n                \"sop\": 1.38,\r\n                \"lor\": 3.5,\r\n                \"cgpa\": 8.78,\r\n                \"research\": 1\r\n            },\r\n            {\r\n                \"serial_no\": 112,\r\n                \"gre_score\": 321,\r\n                \"toefl_score\": 84,\r\n                \"university_rating\": 4,\r\n                \"sop\": 4.13,\r\n                \"lor\": 4,\r\n                \"cgpa\": 8.68,\r\n                \"research\": 1\r\n            },\r\n            {\r\n                \"serial_no\": 55,\r\n                \"gre_score\": 306,\r\n                \"toefl_score\": 110,\r\n                \"university_rating\": 3,\r\n                \"sop\": 3,\r\n                \"lor\": 3.5,\r\n                \"cgpa\": 8,\r\n                \"research\": 0\r\n            }\r\n        ]\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{localhost}}/predict",
+					"host": [
+						"{{localhost}}"
+					],
+					"path": [
+						"predict"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "matrix",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"registros\":\r\n        [\r\n            {\r\n                \"serial_no\": null,\r\n                \"gre_score\": null,\r\n                \"toefl_score\": null,\r\n                \"university_rating\": 4,\r\n                \"sop\": null,\r\n                \"lor\": null,\r\n                \"cgpa\": 8.88,\r\n                \"research\": 1\r\n            },\r\n            {\r\n                \"serial_no\": null,\r\n                \"gre_score\": null,\r\n                \"toefl_score\": null,\r\n                \"university_rating\": 1,\r\n                \"sop\": null,\r\n                \"lor\": null,\r\n                \"cgpa\": 7.71,\r\n                \"research\": 0\r\n            }\r\n        ]\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{localhost}}/predict",
+					"host": [
+						"{{localhost}}"
+					],
+					"path": [
+						"predict"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "coefficients",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"registros\":\r\n        [\r\n            {\r\n                \"serial_no\": 479,\r\n                \"gre_score\": 327,\r\n                \"toefl_score\": 113,\r\n                \"university_rating\": null,\r\n                \"sop\": 4.0,\r\n                \"lor\": 2.77,\r\n                \"cgpa\": 8.88,\r\n                \"research\": 1\r\n            },\r\n            {\r\n                \"serial_no\": 446,\r\n                \"gre_score\": 301,\r\n                \"toefl_score\": 92,\r\n                \"university_rating\": 1,\r\n                \"sop\": 1.85,\r\n                \"lor\": 1.5,\r\n                \"cgpa\": 7.71,\r\n                \"research\": 0\r\n            }\r\n        ]\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{localhost}}/predict",
+					"host": [
+						"{{localhost}}"
+					],
+					"path": [
+						"predict"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "profile",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"registros\":\r\n        [\r\n            {\r\n                \"serial_no\": 479,\r\n                \"gre_score\": 327,\r\n                \"toefl_score\": 113,\r\n                \"university_rating\": 100,\r\n                \"sop\": 4.0,\r\n                \"lor\": 2.77,\r\n                \"cgpa\": 100,\r\n                \"research\": 20\r\n            },\r\n            {\r\n                \"serial_no\": 446,\r\n                \"gre_score\": 301,\r\n                \"toefl_score\": 92,\r\n                \"university_rating\": -5,\r\n                \"sop\": 1.85,\r\n                \"lor\": 1.5,\r\n                \"cgpa\": -10,\r\n                \"research\": 0\r\n            }\r\n        ]\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{localhost}}/predict",
+					"host": [
+						"{{localhost}}"
+					],
+					"path": [
+						"predict"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "train",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"registros\":\r\n        [\r\n            {\r\n                \"text\": \"okas good ok good \",\r\n                \"strs\": 5\r\n       \r\n            },\r\n                        {\r\n                \"text\": \"bad horrible shit \",\r\n                \"strs\": 1\r\n       \r\n            }\r\n        \r\n        ]\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{localhost}}/train",
+					"host": [
+						"{{localhost}}"
+					],
+					"path": [
+						"train"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "localhost",
+			"value": "http://127.0.0.1:8000",
+			"type": "string"
+		}
+	]
+}
