@@ -1,1 +1,1 @@
-{"count": 58, "n_var": 2, "n_cells_missing": 0, "n_vars_with_missing": 0, "n_vars_all_missing": 0, "p_cells_missing": 0.0, "n_duplicates": 29, "p_duplicates": 0.5, "stars": {"count": 58.0, "mean": 3.7931034483, "std": 1.5756771943, "min": 1.0, "25%": 4.0, "50%": 4.0, "75%": 5.0, "max": 5.0}}
+{"count": 4000, "n_var": 2, "n_cells_missing": 0, "n_vars_with_missing": 0, "n_vars_all_missing": 0, "p_cells_missing": 0.0, "n_duplicates": 0, "p_duplicates": 0.0, "stars": {"count": 4000.0, "mean": 3.7435, "std": 1.467905459, "min": 1.0, "25%": 3.0, "50%": 4.0, "75%": 5.0, "max": 5.0}}
