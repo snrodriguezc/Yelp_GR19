@@ -254,7 +254,7 @@ const SimpleLayout = (props) => {
       { loading ? <Loading /> : null}
       <Col>
         <Row className='justify-content-center'>
-          <Col sm={ submitted? 5 : 6} >
+          <Col sm={ submitted? 3 : 6} >
               
             <br />
             { !submitted ? 
@@ -277,46 +277,9 @@ const SimpleLayout = (props) => {
               </FloatingLabel>
             
             : <q className='h4'>{comment}</q>}
-
-            { !submitted ? 
-              <Col className='text-center'  >
-                <Button disabled={submitted} onClick={()=> handleSummit()} variant='warning'>Submit</Button>
-              </Col>
-            : null}
-
             {submitted ? 
             
-            <>
-              <br /><br />
-              <br /><br /> <br /> 
-              <Row className='justify-content-center'>
-                <Col className='text-center' style={{height: '250px', maxWidth: '350px'}}>
-                  <h4>Positive words</h4>
-                  {submitted && wordsPositive.length  ? 
-                
-                    <div style={{height: '300px'}}>
-                      <ReactWordcloud options={options} size={size} callbacks={callbacks} words={wordsPositive}/> 
-                    </div>
-                  : null }
-                </Col>
-                <Col className='text-center' style={{height: '250px', maxWidth: '350px'}}>
-                  <h4>Negative words</h4>
-                  {submitted && wordsNegative.length  ? 
-                
-                    <div style={{height: '300px'}}>
-                      <ReactWordcloud options={options} size={size} callbacks={callbacksNegative} words={wordsPositive}/> 
-                    </div>
-                  : null }
-                </Col>
-              </Row>
-            </>
-            :null}
-            
-          </Col>
-          { submitted ? 
             <Col className='text-center'>
-              <br />
-              {submitted ? <Button  onClick={()=> handleClean()} variant='warning'>Try another</Button> : null} 
               <br /><br />
               <span>Prediction:</span>
               {submitted && stars.length  ?  
@@ -329,7 +292,26 @@ const SimpleLayout = (props) => {
                      return <i className="fa-regular fa-star  text-warning"></i>
                   })
               : null }
-              <br /><br />
+              <br />
+            </Col>
+            : null}
+
+              
+            
+            <Col className='text-center'  >
+            <br />
+            { !submitted ? 
+              
+                <Button disabled={submitted} onClick={()=> handleSummit()} variant='warning'>Submit</Button>
+              
+            : <Button  onClick={()=> handleClean()} variant='warning'>Try another</Button>}
+            </Col>
+
+            
+            
+          </Col>
+          { submitted ? 
+            <Col className='text-center'>
               <h2>About the model</h2>
               {submitted && chartPrecision?.points?.length ? 
               
@@ -449,7 +431,27 @@ const SimpleLayout = (props) => {
 
               
               :null}
-              
+              <br /><br /> <br /> 
+              <Row className='justify-content-center'>
+                <Col className='text-center' style={{height: '250px', maxWidth: '350px'}}>
+                  <h4>Positive words</h4>
+                  {submitted && wordsPositive.length  ? 
+                
+                    <div style={{height: '300px'}}>
+                      <ReactWordcloud options={options} size={size} callbacks={callbacks} words={wordsPositive}/> 
+                    </div>
+                  : null }
+                </Col>
+                <Col className='text-center' style={{height: '250px', maxWidth: '350px'}}>
+                  <h4>Negative words</h4>
+                  {submitted && wordsNegative.length  ? 
+                
+                    <div style={{height: '300px'}}>
+                      <ReactWordcloud options={options} size={size} callbacks={callbacksNegative} words={wordsPositive}/> 
+                    </div>
+                  : null }
+                </Col>
+              </Row>
               
 
                        
