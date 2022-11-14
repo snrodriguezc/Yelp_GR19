@@ -1,0 +1,16 @@
+.content{
+  margin-left: 8px;
+  margin-right: 8px;
+  margin-top: 72px;
+  padding: 8px;
+  border-radius: 32px;
+  min-height: 90vh;
+  background: #fff;
+}
+
+@media (max-width: 576px) {
+
+  
+
+  
+}
