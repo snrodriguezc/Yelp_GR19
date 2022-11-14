@@ -1,1 +1,0 @@
-{"count": 1000, "n_var": 2, "n_cells_missing": 0, "n_vars_with_missing": 0, "n_vars_all_missing": 0, "p_cells_missing": 0.0, "n_duplicates": 0, "p_duplicates": 0.0, "stars": {"count": 1000.0, "mean": 3.736, "std": 1.4820595469, "min": 1.0, "25%": 3.0, "50%": 4.0, "75%": 5.0, "max": 5.0}}
