@@ -356,7 +356,7 @@ const SimpleLayout = (props) => {
               <div className='content-card text-center mb-3 shadow-light'>
                 <h3>Profile of the Model</h3>
                 <ListGroup>
-                  { profile.n_cells_missing ? 
+                  { profile?.n_cells_missing?.toString() ? 
                   <ListGroup.Item
                     as="li"
                     className="d-flex justify-content-between align-items-start"
@@ -369,7 +369,7 @@ const SimpleLayout = (props) => {
                     </Badge>
                   </ListGroup.Item>
                   :null}
-                  { profile.n_duplicates ? 
+                  { profile?.n_duplicates ? 
                   <ListGroup.Item
                     as="li"
                     className="d-flex justify-content-between align-items-start"
@@ -382,7 +382,7 @@ const SimpleLayout = (props) => {
                     </Badge>
                   </ListGroup.Item>
                   :null}
-                  { profile.count ? 
+                  { profile?.count ? 
                   <ListGroup.Item
                     as="li"
                     className="d-flex justify-content-between align-items-start"
